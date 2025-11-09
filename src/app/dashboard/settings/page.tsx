@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function SettingsPage() {
   // State for various settings
@@ -18,10 +18,80 @@ export default function SettingsPage() {
   const [trendAnalysisEnabled, setTrendAnalysisEnabled] = useState(true);
   const [contentGenerationEnabled, setContentGenerationEnabled] = useState(true);
   const [autoPostingEnabled, setAutoPostingEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    // In production, this would save to backend API
-    alert('Settings saved successfully!');
+  // Load settings on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/settings`);
+
+        if (response.ok) {
+          const data = await response.json();
+          const settings = data.settings;
+
+          setPostingTime(settings.postingTime || '17:00');
+          setContentMixImages(settings.contentMix?.images || 70);
+          setContentMixVideos(settings.contentMix?.videos || 30);
+          setBrandVoice(settings.brandVoice || 'professional-inspirational');
+          setAutoApproval(settings.autoApproval || false);
+          setEmailNotifications(settings.emailNotifications !== false);
+          setTrendAnalysisEnabled(settings.modules?.trendAnalysisEnabled !== false);
+          setContentGenerationEnabled(settings.modules?.contentGenerationEnabled !== false);
+          setAutoPostingEnabled(settings.modules?.autoPostingEnabled || false);
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+
+      const settings = {
+        postingTime,
+        contentMix: {
+          images: contentMixImages,
+          videos: contentMixVideos
+        },
+        brandVoice,
+        autoApproval,
+        emailNotifications,
+        modules: {
+          trendAnalysisEnabled,
+          contentGenerationEnabled,
+          autoPostingEnabled
+        }
+      };
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(settings)
+      });
+
+      if (response.ok) {
+        alert('Settings saved successfully!');
+      } else {
+        const error = await response.json();
+        alert(`Error saving settings: ${error.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      alert('Failed to save settings. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -303,14 +373,16 @@ export default function SettingsPage() {
           <button
             onClick={() => window.location.reload()}
             className="btn-secondary"
+            disabled={isSaving}
           >
             Reset to Defaults
           </button>
           <button
             onClick={handleSave}
             className="btn-primary"
+            disabled={isSaving}
           >
-            Save Settings
+            {isSaving ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
       </div>

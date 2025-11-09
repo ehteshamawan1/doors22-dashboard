@@ -65,8 +65,79 @@ export default function LogsPage() {
   const [filter, setFilter] = useState<string>('all');
 
   useEffect(() => {
-    // In production, this would fetch from API
-    setLogs(generateMockLogs());
+    const fetchLogs = async () => {
+      try {
+        // Fetch posts with their approval history to create activity logs
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts?limit=50`);
+
+        if (!response.ok) {
+          console.error('Failed to fetch logs from API, using mock data');
+          setLogs(generateMockLogs());
+          return;
+        }
+
+        const data = await response.json();
+        const posts = data.posts || [];
+
+        // Transform posts into log entries
+        const activityLogs = posts.flatMap((post: any) => {
+          const logs = [];
+
+          // Add creation log
+          logs.push({
+            id: `${post.id}-created`,
+            type: 'content_generation',
+            status: 'success',
+            message: `${post.contentType || 'Content'} generated successfully`,
+            postId: post.id,
+            contentType: post.contentType,
+            timestamp: post.createdAt,
+          });
+
+          // Add approval logs based on status
+          if (post.status === 'approved') {
+            logs.push({
+              id: `${post.id}-approved`,
+              type: 'post_approved',
+              status: 'info',
+              message: 'Post approved',
+              postId: post.id,
+              timestamp: post.approvedAt || post.updatedAt,
+            });
+          } else if (post.status === 'rejected') {
+            logs.push({
+              id: `${post.id}-rejected`,
+              type: 'post_rejected',
+              status: 'warning',
+              message: post.rejectionReason || 'Post rejected',
+              postId: post.id,
+              timestamp: post.updatedAt,
+            });
+          } else if (post.status === 'posted') {
+            logs.push({
+              id: `${post.id}-posted`,
+              type: 'post_published',
+              status: 'success',
+              message: 'Post published successfully',
+              postId: post.id,
+              timestamp: post.postedAt || post.updatedAt,
+            });
+          }
+
+          return logs;
+        });
+
+        // Sort by timestamp descending
+        activityLogs.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+        setLogs(activityLogs);
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        setLogs(generateMockLogs());
+      }
+    };
+
+    fetchLogs();
   }, []);
 
   const filteredLogs = filter === 'all'

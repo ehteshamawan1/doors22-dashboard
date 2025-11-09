@@ -19,6 +19,50 @@ export default function DashboardPage() {
   const { posts: pendingPosts, isLoading: postsLoading } = usePendingPosts(3);
   const router = useRouter();
 
+  const handleGenerateContent = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/content/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        alert('Content generated successfully! Check the Approval page.');
+        window.location.reload();
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.message || 'Failed to generate content'}`);
+      }
+    } catch (error) {
+      console.error('Error generating content:', error);
+      alert('Failed to generate content. Please try again.');
+    }
+  };
+
+  const handleAnalyzeTrends = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trends/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        alert('Trends analyzed successfully! Check the Trends page.');
+        window.location.reload();
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.message || 'Failed to analyze trends'}`);
+      }
+    } catch (error) {
+      console.error('Error analyzing trends:', error);
+      alert('Failed to analyze trends. Please try again.');
+    }
+  };
+
   const stats = statistics?.byStatus || {};
   const total = statistics?.total || 0;
 
@@ -138,13 +182,13 @@ export default function DashboardPage() {
           <div className="card">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-4">
-              <button className="btn-primary justify-center">
+              <button onClick={handleGenerateContent} className="btn-primary justify-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Generate Content
               </button>
-              <button className="btn-secondary justify-center">
+              <button onClick={handleAnalyzeTrends} className="btn-secondary justify-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>

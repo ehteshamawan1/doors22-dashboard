@@ -11,6 +11,28 @@ import { formatDate } from '@/lib/utils';
 export default function TrendsPage() {
   const { trends, isLoading } = useTrends({ limit: 10 });
 
+  const handleAnalyzeTrends = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trends/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        alert('Trends analyzed successfully!');
+        window.location.reload();
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.message || 'Failed to analyze trends'}`);
+      }
+    } catch (error) {
+      console.error('Error analyzing trends:', error);
+      alert('Failed to analyze trends. Please try again.');
+    }
+  };
+
   return (
     <div className="p-8">
       {/* Header */}
@@ -161,7 +183,7 @@ export default function TrendsPage() {
           </svg>
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">No Trends Available</h2>
           <p className="text-gray-600 mb-6">Run a trend analysis to get started</p>
-          <button className="btn-primary">Analyze Trends Now</button>
+          <button onClick={handleAnalyzeTrends} className="btn-primary">Analyze Trends Now</button>
         </div>
       )}
     </div>

@@ -11,8 +11,13 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Format date to readable string
  */
-export function formatDate(date: string | Date, format: 'short' | 'long' | 'relative' = 'short'): string {
+export function formatDate(date: string | Date | null | undefined, format: 'short' | 'long' | 'relative' = 'short'): string {
+  if (!date) return 'N/A';
+
   const d = typeof date === 'string' ? new Date(date) : date;
+
+  // Check if date is valid
+  if (isNaN(d.getTime())) return 'Invalid Date';
 
   if (format === 'relative') {
     return formatRelativeTime(d);
