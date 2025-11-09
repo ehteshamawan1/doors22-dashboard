@@ -88,8 +88,8 @@ const generateMockInteractions = () => [
       username: 'design_pro',
       profilePic: null,
     },
-    userMessage: '🔥🔥🔥 Love this!',
-    botResponse: 'Thank you so much! 💙 We'd love to help with your next project. Check out more: https://doors22.com/',
+    userMessage: 'Love this!',
+    botResponse: 'Thank you so much! We would love to help with your next project. Check out more: https://doors22.com/',
     category: 'compliment',
     redirected: false,
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
@@ -229,7 +229,7 @@ export default function InteractionsPage() {
                   <div className="flex items-center gap-3 mb-2">
                     <span className="font-medium text-gray-900">@{interaction.user.username}</span>
                     <span className={`badge ${getCategoryColor(interaction.category)}`}>
-                      {interaction.category.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                      {interaction.category.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                     </span>
                     <span className="text-xs text-gray-500">
                       {formatDate(interaction.timestamp, 'relative')}
