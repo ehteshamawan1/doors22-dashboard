@@ -305,8 +305,8 @@ export default function SettingsPage() {
                 <p className="text-sm text-gray-600">
                   Automatically post approved content to Instagram & Facebook
                 </p>
-                <p className="text-xs text-yellow-600 mt-1">
-                  ⚠️ Requires Meta API credentials
+                <p className="text-xs text-green-600 mt-1">
+                  ✓ Meta API connected
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                   onChange={(e) => setAutoPostingEnabled(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-400"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
               </label>
             </div>
           </div>
