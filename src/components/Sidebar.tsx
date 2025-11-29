@@ -8,10 +8,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useState, useEffect } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Pending Approval', href: '/dashboard/approval', icon: ClockIcon, badge: true },
+  { name: 'Pending Approval', href: '/dashboard/approval', icon: ClockIcon, showPendingCount: true },
   { name: 'Content Calendar', href: '/dashboard/content', icon: CalendarIcon },
   { name: 'Analytics', href: '/dashboard/analytics', icon: ChartIcon },
   { name: 'Trends', href: '/dashboard/trends', icon: TrendingIcon },
@@ -23,6 +24,27 @@ const navigation = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  // Fetch pending posts count
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/pending`);
+        if (response.ok) {
+          const data = await response.json();
+          setPendingCount(data.count || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching pending count:', error);
+      }
+    };
+
+    fetchPendingCount();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchPendingCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-white border-r border-gray-200">
@@ -58,9 +80,9 @@ export default function Sidebar() {
                 className={`w-5 h-5 ${isActive ? 'text-primary-600' : 'text-gray-400'}`}
               />
               <span className="flex-1">{item.name}</span>
-              {item.badge && (
-                <span className="px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
-                  New
+              {item.showPendingCount && pendingCount > 0 && (
+                <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full min-w-[20px] text-center">
+                  {pendingCount}
                 </span>
               )}
             </Link>

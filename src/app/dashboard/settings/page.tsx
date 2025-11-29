@@ -355,8 +355,8 @@ export default function SettingsPage() {
 
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm font-medium text-gray-700 mb-1">Meta Graph API</p>
-                <p className="text-xs text-gray-600">Not configured</p>
-                <span className="badge bg-red-100 text-red-700 text-xs mt-2">✗ Not Connected</span>
+                <p className="text-xs text-gray-600">Instagram & Facebook</p>
+                <span className="badge bg-green-100 text-green-700 text-xs mt-2">✓ Connected</span>
               </div>
 
               <div className="p-4 bg-gray-50 rounded-lg">
