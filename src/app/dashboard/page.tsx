@@ -256,7 +256,7 @@ export default function DashboardPage() {
               <StatusItem label="Backend API" status="online" />
               <StatusItem label="Content Generation" status="online" />
               <StatusItem label="Analytics" status="online" />
-              <StatusItem label="Meta API" status="offline" subtitle="Pending setup" />
+              <StatusItem label="Meta API" status="online" subtitle="Instagram & Facebook" />
             </div>
           </div>
         </div>
