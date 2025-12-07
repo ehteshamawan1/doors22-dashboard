@@ -5,6 +5,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { usePostStatistics } from '@/hooks/usePosts';
 import { useLatestTrend } from '@/hooks/useTrends';
 import { usePendingPosts } from '@/hooks/usePosts';
@@ -13,23 +14,37 @@ import PostCard from '@/components/PostCard';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+// Category options for content generation
+const CATEGORIES = [
+  { key: 'room_dividers', label: 'Room Dividers' },
+  { key: 'closet_doors', label: 'Closet Doors' },
+  { key: 'home_offices', label: 'Home Offices' }
+];
+
 export default function DashboardPage() {
   const { statistics, isLoading: statsLoading } = usePostStatistics();
   const { trend, isLoading: trendLoading } = useLatestTrend();
   const { posts: pendingPosts, isLoading: postsLoading } = usePendingPosts(3);
   const router = useRouter();
 
+  // State for category selection
+  const [selectedCategory, setSelectedCategory] = useState<string>('room_dividers');
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const handleGenerateContent = async () => {
     try {
+      setIsGenerating(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/content/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ category: selectedCategory }),
       });
 
       if (response.ok) {
-        alert('Content generated successfully! Check the Approval page.');
+        const data = await response.json();
+        alert(`Content generated successfully for ${CATEGORIES.find(c => c.key === selectedCategory)?.label}! Check the Approval page.`);
         window.location.reload();
       } else {
         const error = await response.json();
@@ -38,6 +53,8 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error generating content:', error);
       alert('Failed to generate content. Please try again.');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -181,19 +198,56 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           <div className="card">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <button onClick={handleGenerateContent} className="btn-primary justify-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Generate Content
-              </button>
-              <button onClick={handleAnalyzeTrends} className="btn-secondary justify-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-                Analyze Trends
-              </button>
+            <div className="space-y-4">
+              {/* Category Selection */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Select Category for Content Generation
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat.key} value={cat.key}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={handleGenerateContent}
+                  disabled={isGenerating}
+                  className="btn-primary justify-center disabled:opacity-50"
+                >
+                  {isGenerating ? (
+                    <>
+                      <svg className="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Generate {CATEGORIES.find(c => c.key === selectedCategory)?.label}
+                    </>
+                  )}
+                </button>
+                <button onClick={handleAnalyzeTrends} className="btn-secondary justify-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                  Analyze Trends
+                </button>
+              </div>
             </div>
           </div>
         </div>

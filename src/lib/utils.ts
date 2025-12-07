@@ -8,8 +8,11 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
+// Eastern Time Zone constant
+const EASTERN_TIMEZONE = 'America/New_York';
+
 /**
- * Format date to readable string
+ * Format date to readable string in Eastern Time
  */
 export function formatDate(date: string | Date | null | undefined, format: 'short' | 'long' | 'relative' = 'short'): string {
   if (!date) return 'N/A';
@@ -24,23 +27,25 @@ export function formatDate(date: string | Date | null | undefined, format: 'shor
   }
 
   if (format === 'long') {
-    return d.toLocaleDateString('en-US', {
+    return d.toLocaleString('en-US', {
+      timeZone: EASTERN_TIMEZONE,
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
+    }) + ' ET';
   }
 
-  return d.toLocaleDateString('en-US', {
+  return d.toLocaleString('en-US', {
+    timeZone: EASTERN_TIMEZONE,
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  }) + ' ET';
 }
 
 /**

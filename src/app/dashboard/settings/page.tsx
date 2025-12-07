@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 
 export default function SettingsPage() {
   // State for various settings
-  const [postingTime, setPostingTime] = useState('17:00'); // 5:00 PM UTC
+  const [postingTime, setPostingTime] = useState('12:00'); // 12:00 PM ET (noon)
   const [contentMixImages, setContentMixImages] = useState(70);
   const [contentMixVideos, setContentMixVideos] = useState(30);
   const [brandVoice, setBrandVoice] = useState('professional-inspirational');
@@ -186,7 +186,7 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Daily Posting Time (UTC)
+                Daily Posting Time (Eastern Time)
               </label>
               <input
                 type="time"
@@ -195,18 +195,18 @@ export default function SettingsPage() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Current: {postingTime} UTC (Default: 17:00 UTC = 12:00 PM EST)
+                Current: {postingTime} ET (Eastern Time)
               </p>
             </div>
 
             <div className="p-4 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-900">
-                <strong>Optimal Posting Times:</strong>
+                <strong>Optimal Posting Times (Eastern):</strong>
               </p>
               <ul className="text-xs text-blue-700 mt-2 space-y-1">
-                <li>• Instagram: 11:00 AM - 2:00 PM EST (weekdays)</li>
-                <li>• Facebook: 1:00 PM - 3:00 PM EST (weekdays)</li>
-                <li>• Current setting: {postingTime} UTC</li>
+                <li>• Instagram: 11:00 AM - 2:00 PM ET (weekdays)</li>
+                <li>• Facebook: 1:00 PM - 3:00 PM ET (weekdays)</li>
+                <li>• Current setting: {postingTime} ET</li>
               </ul>
             </div>
           </div>
@@ -267,7 +267,7 @@ export default function SettingsPage() {
               <div className="flex-1">
                 <p className="font-medium text-gray-900">Daily Trend Analysis</p>
                 <p className="text-sm text-gray-600">
-                  Analyze competitor content and market trends (Runs at 3:00 AM UTC)
+                  Analyze competitor content and market trends (Runs at 10:00 PM ET)
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -285,7 +285,7 @@ export default function SettingsPage() {
               <div className="flex-1">
                 <p className="font-medium text-gray-900">Content Generation</p>
                 <p className="text-sm text-gray-600">
-                  Generate images and videos with Midjourney (Runs at 3:15 AM UTC)
+                  Generate 3 daily posts using reference images (Runs at 10:15 PM ET)
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
