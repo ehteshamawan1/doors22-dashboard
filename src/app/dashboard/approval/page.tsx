@@ -19,9 +19,17 @@ export default function ApprovalPage() {
   const handleApprove = async (id: string) => {
     setActionLoading(id);
     try {
-      await postsApi.approve(id, { approvedBy: 'admin' });
+      const result = await postsApi.approve(id, { approvedBy: 'admin' });
       await mutate();
-      alert('Post approved successfully!');
+
+      // Check if immediate posting was attempted and failed
+      if (result.immediatePost === false && result.postingError) {
+        alert(`Post approved but publishing failed: ${JSON.stringify(result.postingError)}\n\nThe post will be retried automatically.`);
+      } else if (result.immediatePost === true) {
+        alert('Post approved and published successfully!');
+      } else {
+        alert('Post approved successfully! It will be published at the scheduled time.');
+      }
     } catch (error) {
       console.error('Error approving post:', error);
       alert('Failed to approve post');
@@ -60,10 +68,18 @@ export default function ApprovalPage() {
 
     setActionLoading(editingPost.id);
     try {
-      await postsApi.edit(editingPost.id, { caption: editCaption }, 'admin');
+      const result = await postsApi.edit(editingPost.id, { caption: editCaption }, 'admin');
       await mutate();
       setEditingPost(null);
-      alert('Post updated and approved!');
+
+      // Check if immediate posting was attempted and failed
+      if (result.immediatePost === false && result.postingError) {
+        alert(`Post updated but publishing failed: ${JSON.stringify(result.postingError)}\n\nThe post will be retried automatically.`);
+      } else if (result.immediatePost === true) {
+        alert('Post updated and published successfully!');
+      } else {
+        alert('Post updated and approved! It will be published at the scheduled time.');
+      }
     } catch (error) {
       console.error('Error editing post:', error);
       alert('Failed to update post');

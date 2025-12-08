@@ -156,6 +156,14 @@ export const interactionsApi = {
   },
 };
 
+// ===== LOGS API =====
+export const logsApi = {
+  getAll: async (params?: { limit?: number; type?: string }) => {
+    const response = await apiClient.get('/api/logs', { params });
+    return response.data;
+  },
+};
+
 // ===== HEALTH CHECK =====
 export const healthApi = {
   check: async () => {
