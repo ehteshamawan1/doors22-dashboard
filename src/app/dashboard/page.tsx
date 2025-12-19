@@ -21,6 +21,11 @@ const CATEGORIES = [
   { key: 'home_offices', label: 'Home Offices' }
 ];
 
+const CONTENT_TYPES = [
+  { key: 'image', label: 'Image' },
+  { key: 'video', label: 'Video' }
+];
+
 export default function DashboardPage() {
   const { statistics, isLoading: statsLoading } = usePostStatistics();
   const { trend, isLoading: trendLoading } = useLatestTrend();
@@ -29,6 +34,7 @@ export default function DashboardPage() {
 
   // State for category selection
   const [selectedCategory, setSelectedCategory] = useState<string>('room_dividers');
+  const [selectedType, setSelectedType] = useState<string>('image');
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateContent = async () => {
@@ -39,12 +45,12 @@ export default function DashboardPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ category: selectedCategory }),
+        body: JSON.stringify({ category: selectedCategory, type: selectedType }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        alert(`Content generated successfully for ${CATEGORIES.find(c => c.key === selectedCategory)?.label}! Check the Approval page.`);
+        alert(`Content generated successfully (${selectedType}) for ${CATEGORIES.find(c => c.key === selectedCategory)?.label}! Check the Approval page.`);
         window.location.reload();
       } else {
         const error = await response.json();
@@ -217,6 +223,24 @@ export default function DashboardPage() {
                 </select>
               </div>
 
+              {/* Content Type Selection */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Select Content Type
+                </label>
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  {CONTENT_TYPES.map((type) => (
+                    <option key={type.key} value={type.key}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-4">
                 <button
@@ -237,7 +261,7 @@ export default function DashboardPage() {
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
-                      Generate {CATEGORIES.find(c => c.key === selectedCategory)?.label}
+                      Generate {CATEGORIES.find(c => c.key === selectedCategory)?.label} ({selectedType})
                     </>
                   )}
                 </button>
