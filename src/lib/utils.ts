@@ -125,13 +125,13 @@ export function getStatusColor(status: string): string {
  */
 export function getStatusBadgeClass(status: string): string {
   const classes: Record<string, string> = {
-    pending: 'badge bg-yellow-500 text-white',
-    approved: 'badge bg-green-600 text-white',
-    rejected: 'badge bg-red-600 text-white',
-    posted: 'badge bg-blue-600 text-white',
+    pending: 'badge bg-black/50 text-white backdrop-blur-sm',
+    approved: 'badge bg-black/50 text-white backdrop-blur-sm',
+    rejected: 'badge bg-black/50 text-white backdrop-blur-sm',
+    posted: 'badge bg-black/50 text-white backdrop-blur-sm',
   };
 
-  return classes[normalizeStatus(status)] || 'badge bg-gray-800 text-white';
+  return classes[normalizeStatus(status)] || 'badge bg-black/50 text-white backdrop-blur-sm';
 }
 
 /**
