@@ -9,7 +9,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 function normalizeStatus(status: string): string {
-  const normalized = (status || '').toString().trim().toLowerCase().replace(/[\s-]+/g, '_');
+  const normalized = (status || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_')
+    .replace(/[^a-z_]/g, '');
   if (normalized === 'pending_approval') {
     return 'pending';
   }

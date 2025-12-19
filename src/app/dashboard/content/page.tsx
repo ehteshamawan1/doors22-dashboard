@@ -16,17 +16,30 @@ export default function ContentPage() {
   const [, setActionLoading] = useState<string | null>(null);
 
   const { posts, isLoading, mutate } = usePosts({
-    status: filter === 'all' ? undefined : filter,
-    type: typeFilter === 'all' ? undefined : typeFilter,
     limit: 100,
   });
 
+  const normalizeStatus = (status: string) =>
+    (status || '')
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, '_')
+      .replace(/[^a-z_]/g, '');
+
+  const normalizeType = (type: string) =>
+    (type || '')
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z]/g, '');
+
   const filters = [
     { value: 'all', label: 'All Posts', count: posts.length },
-    { value: 'pending', label: 'Pending', count: posts.filter((p: any) => p.status === 'pending').length },
-    { value: 'approved', label: 'Approved', count: posts.filter((p: any) => p.status === 'approved').length },
-    { value: 'posted', label: 'Posted', count: posts.filter((p: any) => p.status === 'posted').length },
-    { value: 'rejected', label: 'Rejected', count: posts.filter((p: any) => p.status === 'rejected').length },
+    { value: 'pending', label: 'Pending', count: posts.filter((p: any) => normalizeStatus(p.status) === 'pending').length },
+    { value: 'approved', label: 'Approved', count: posts.filter((p: any) => normalizeStatus(p.status) === 'approved').length },
+    { value: 'posted', label: 'Posted', count: posts.filter((p: any) => normalizeStatus(p.status) === 'posted').length },
+    { value: 'rejected', label: 'Rejected', count: posts.filter((p: any) => normalizeStatus(p.status) === 'rejected').length },
   ];
 
   const typeFilters = [
@@ -57,6 +70,15 @@ The post will be retried automatically.`);
       setActionLoading(null);
     }
   };
+
+  const filteredPosts = posts.filter((post: any) => {
+    const status = normalizeStatus(post.status);
+    const type = normalizeType(post.type);
+
+    if (filter !== 'all' && status !== filter) return false;
+    if (typeFilter !== 'all' && type !== typeFilter) return false;
+    return true;
+  });
 
   return (
     <div className="p-8">
@@ -123,9 +145,9 @@ The post will be retried automatically.`);
             <div key={i} className="skeleton h-[600px] rounded-lg"></div>
           ))}
         </div>
-      ) : posts.length > 0 ? (
+      ) : filteredPosts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {posts.map((post: any) => (
+          {filteredPosts.map((post: any) => (
             <PostCard
               key={post.id}
               post={post}

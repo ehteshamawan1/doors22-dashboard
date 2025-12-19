@@ -29,7 +29,10 @@ export default function PostCard({
 }: PostCardProps) {
   const isVideo = post.type === 'video';
   const mediaUrl = isVideo ? post.thumbnailUrl : post.mediaUrl;
-  const statusLabel = String(post.status || 'unknown').replace(/_/g, ' ');
+  const statusLabel = String(post.status || 'unknown')
+    .replace(/_/g, ' ')
+    .replace(/[^a-zA-Z ]/g, '')
+    .trim();
   const showPendingActions = showActions && post.status === 'pending';
   const showRejectedApprove = allowRejectedApprove && post.status === 'rejected';
 
