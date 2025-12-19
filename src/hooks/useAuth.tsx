@@ -40,8 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     // Simple hardcoded authentication
     // In production, this would call the backend API
-    const validEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@doors22.com';
-    const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+    const validEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'leobel8@yahoo.com';
+    const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'Dr3tech!!';
 
     if (email === validEmail && password === validPassword) {
       const token = btoa(`${email}:${password}`); // Simple token

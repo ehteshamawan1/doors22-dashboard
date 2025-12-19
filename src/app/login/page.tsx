@@ -62,7 +62,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="input"
-                placeholder="admin@doors22.com"
+                placeholder="leobel8@yahoo.com"
                 required
                 autoFocus
               />
@@ -105,14 +105,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <p className="text-xs font-medium text-blue-900 mb-2">Demo Credentials:</p>
-            <p className="text-xs text-blue-700">
-              Email: admin@doors22.com<br />
-              Password: admin123
-            </p>
-          </div>
+          {/* Demo Credentials removed for production */}
         </div>
 
         {/* Footer */}

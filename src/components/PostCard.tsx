@@ -15,6 +15,7 @@ interface PostCardProps {
   onEdit?: (id: string) => void;
   onView?: (id: string) => void;
   showActions?: boolean;
+  allowRejectedApprove?: boolean;
 }
 
 export default function PostCard({
@@ -24,9 +25,13 @@ export default function PostCard({
   onEdit,
   onView,
   showActions = true,
+  allowRejectedApprove = false,
 }: PostCardProps) {
   const isVideo = post.type === 'video';
   const mediaUrl = isVideo ? post.thumbnailUrl : post.mediaUrl;
+  const statusLabel = String(post.status || 'unknown').replace(/_/g, ' ');
+  const showPendingActions = showActions && post.status === 'pending';
+  const showRejectedApprove = allowRejectedApprove && post.status === 'rejected';
 
   return (
     <div className="card-hover group">
@@ -60,15 +65,15 @@ export default function PostCard({
 
         {/* Status Badge */}
         <div className="absolute top-3 right-3">
-          <span className={getStatusBadgeClass(post.status)}>
-            {post.status}
+          <span className={`${getStatusBadgeClass(post.status)} capitalize`}>
+            {statusLabel}
           </span>
         </div>
 
         {/* Type Badge */}
         <div className="absolute top-3 left-3">
           <span className="badge bg-black/50 text-white backdrop-blur-sm">
-            {isVideo ? '🎬 Video' : '🖼️ Image'}
+            {isVideo ? 'Video' : 'Image'}
           </span>
         </div>
       </div>
@@ -109,43 +114,64 @@ export default function PostCard({
         </div>
 
         {/* Actions */}
-        {showActions && post.status === 'pending' && (
+        {(showPendingActions || showRejectedApprove) && (
           <div className="flex gap-2 pt-3 border-t border-gray-200">
-            <button
-              onClick={() => onApprove?.(post.id)}
-              className="btn-success flex-1 btn-sm"
-            >
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Approve
-            </button>
+            {showPendingActions && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onApprove?.(post.id)}
+                  className="btn-success flex-1 btn-sm"
+                >
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Approve
+                </button>
 
-            <button
-              onClick={() => onEdit?.(post.id)}
-              className="btn-secondary btn-sm"
-            >
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit
-            </button>
+                <button
+                  type="button"
+                  onClick={() => onEdit?.(post.id)}
+                  className="btn-secondary btn-sm"
+                >
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit
+                </button>
 
-            <button
-              onClick={() => onReject?.(post.id)}
-              className="btn-danger btn-sm"
-            >
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              Reject
-            </button>
+                <button
+                  type="button"
+                  onClick={() => onReject?.(post.id)}
+                  className="btn-danger btn-sm"
+                >
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Reject
+                </button>
+              </>
+            )}
+
+            {showRejectedApprove && (
+              <button
+                type="button"
+                onClick={() => onApprove?.(post.id)}
+                className="btn-success flex-1 btn-sm"
+              >
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Approve
+              </button>
+            )}
           </div>
         )}
 
         {/* View Details */}
         {onView && (
           <button
+            type="button"
             onClick={() => onView(post.id)}
             className="btn-secondary w-full btn-sm mt-2"
           >
@@ -156,3 +182,4 @@ export default function PostCard({
     </div>
   );
 }
+

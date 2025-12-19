@@ -7,13 +7,15 @@
 
 import { useState } from 'react';
 import { usePosts } from '@/hooks/usePosts';
+import { postsApi } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 
 export default function ContentPage() {
   const [filter, setFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [, setActionLoading] = useState<string | null>(null);
 
-  const { posts, isLoading } = usePosts({
+  const { posts, isLoading, mutate } = usePosts({
     status: filter === 'all' ? undefined : filter,
     type: typeFilter === 'all' ? undefined : typeFilter,
     limit: 100,
@@ -29,9 +31,32 @@ export default function ContentPage() {
 
   const typeFilters = [
     { value: 'all', label: 'All Types' },
-    { value: 'image', label: '🖼️ Images' },
-    { value: 'video', label: '🎬 Videos' },
+    { value: 'image', label: 'Images' },
+    { value: 'video', label: 'Videos' },
   ];
+
+  const handleApprove = async (id: string) => {
+    setActionLoading(id);
+    try {
+      const result = await postsApi.approve(id, { approvedBy: 'leobel8@yahoo.com' });
+      await mutate();
+
+      if (result.immediatePost === false && result.postingError) {
+        alert(`Post approved but publishing failed: ${JSON.stringify(result.postingError)}
+
+The post will be retried automatically.`);
+      } else if (result.immediatePost === true) {
+        alert('Post approved and published successfully!');
+      } else {
+        alert('Post approved successfully! It will be published at the scheduled time.');
+      }
+    } catch (error) {
+      console.error('Error approving post:', error);
+      alert('Failed to approve post');
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   return (
     <div className="p-8">
@@ -101,7 +126,13 @@ export default function ContentPage() {
       ) : posts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {posts.map((post: any) => (
-            <PostCard key={post.id} post={post} showActions={false} />
+            <PostCard
+              key={post.id}
+              post={post}
+              showActions={false}
+              allowRejectedApprove
+              onApprove={handleApprove}
+            />
           ))}
         </div>
       ) : (

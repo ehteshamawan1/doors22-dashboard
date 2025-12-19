@@ -68,8 +68,8 @@ npm run dev
 
 ### Default Login Credentials
 ```
-Email: admin@doors22.com
-Password: admin123
+Email: leobel8@yahoo.com
+Password: Dr3tech!!
 ```
 
 ## Project Structure

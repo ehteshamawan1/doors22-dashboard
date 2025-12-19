@@ -8,6 +8,14 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
+function normalizeStatus(status: string): string {
+  const normalized = (status || '').toString().trim().toLowerCase().replace(/[\s-]+/g, '_');
+  if (normalized === 'pending_approval') {
+    return 'pending';
+  }
+  return normalized;
+}
+
 // Eastern Time Zone constant
 const EASTERN_TIMEZONE = 'America/New_York';
 
@@ -104,7 +112,7 @@ export function getStatusColor(status: string): string {
     posted: 'blue',
   };
 
-  return colors[status] || 'gray';
+  return colors[normalizeStatus(status)] || 'gray';
 }
 
 /**
@@ -118,7 +126,7 @@ export function getStatusBadgeClass(status: string): string {
     posted: 'badge-posted',
   };
 
-  return classes[status] || 'badge';
+  return classes[normalizeStatus(status)] || 'badge bg-gray-800 text-white';
 }
 
 /**
@@ -166,12 +174,13 @@ export function calculatePercentage(value: number, total: number): number {
  */
 export function getMediaTypeIcon(type: string): string {
   const icons: Record<string, string> = {
-    image: '🖼️',
-    video: '🎬',
+    image: 'IMG',
+    video: 'VID',
   };
 
-  return icons[type] || '📄';
+  return icons[type] || 'FILE';
 }
+
 
 /**
  * Validate email

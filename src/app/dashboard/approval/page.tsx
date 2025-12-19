@@ -15,11 +15,13 @@ export default function ApprovalPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editingPost, setEditingPost] = useState<any>(null);
   const [editCaption, setEditCaption] = useState('');
+  const [rejectingPost, setRejectingPost] = useState<any>(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   const handleApprove = async (id: string) => {
     setActionLoading(id);
     try {
-      const result = await postsApi.approve(id, { approvedBy: 'admin' });
+      const result = await postsApi.approve(id, { approvedBy: 'leobel8@yahoo.com' });
       await mutate();
 
       // Check if immediate posting was attempted and failed
@@ -39,19 +41,10 @@ export default function ApprovalPage() {
   };
 
   const handleReject = async (id: string) => {
-    const reason = prompt('Enter rejection reason (optional):');
-    if (reason === null) return; // Cancelled
-
-    setActionLoading(id);
-    try {
-      await postsApi.reject(id, { reason: reason || 'No reason provided', rejectedBy: 'admin' });
-      await mutate();
-      alert('Post rejected successfully');
-    } catch (error) {
-      console.error('Error rejecting post:', error);
-      alert('Failed to reject post');
-    } finally {
-      setActionLoading(null);
+    const post = posts.find((p: any) => p.id === id);
+    if (post) {
+      setRejectingPost(post);
+      setRejectReason('');
     }
   };
 
@@ -68,7 +61,7 @@ export default function ApprovalPage() {
 
     setActionLoading(editingPost.id);
     try {
-      const result = await postsApi.edit(editingPost.id, { caption: editCaption }, 'admin');
+      const result = await postsApi.edit(editingPost.id, { caption: editCaption }, 'leobel8@yahoo.com');
       await mutate();
       setEditingPost(null);
 
@@ -83,6 +76,27 @@ export default function ApprovalPage() {
     } catch (error) {
       console.error('Error editing post:', error);
       alert('Failed to update post');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectingPost) return;
+
+    setActionLoading(rejectingPost.id);
+    try {
+      await postsApi.reject(rejectingPost.id, {
+        reason: rejectReason.trim() || 'No reason provided',
+        rejectedBy: 'leobel8@yahoo.com'
+      });
+      await mutate();
+      setRejectingPost(null);
+      setRejectReason('');
+      alert('Post rejected successfully');
+    } catch (error) {
+      console.error('Error rejecting post:', error);
+      alert('Failed to reject post');
     } finally {
       setActionLoading(null);
     }
@@ -193,6 +207,7 @@ export default function ApprovalPage() {
                 onClick={() => setEditingPost(null)}
                 className="btn-secondary flex-1"
                 disabled={actionLoading === editingPost.id}
+                type="button"
               >
                 Cancel
               </button>
@@ -200,6 +215,7 @@ export default function ApprovalPage() {
                 onClick={handleSaveEdit}
                 className="btn-primary flex-1"
                 disabled={actionLoading === editingPost.id}
+                type="button"
               >
                 {actionLoading === editingPost.id ? (
                   <div className="flex items-center justify-center">
@@ -208,6 +224,64 @@ export default function ApprovalPage() {
                   </div>
                 ) : (
                   'Save & Approve'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Modal */}
+      {rejectingPost && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Reject Post</h2>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-600">
+                Add an optional reason. You can approve this later from the Content Calendar.
+              </p>
+              <div>
+                <label htmlFor="reject-reason" className="label">
+                  Rejection Reason (optional)
+                </label>
+                <textarea
+                  id="reject-reason"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  className="input min-h-[120px] resize-y"
+                  placeholder="Reason for rejection..."
+                />
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setRejectingPost(null);
+                  setRejectReason('');
+                }}
+                className="btn-secondary flex-1"
+                disabled={actionLoading === rejectingPost.id}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmReject}
+                className="btn-danger flex-1"
+                disabled={actionLoading === rejectingPost.id}
+              >
+                {actionLoading === rejectingPost.id ? (
+                  <div className="flex items-center justify-center">
+                    <div className="spinner mr-2"></div>
+                    Rejecting...
+                  </div>
+                ) : (
+                  'Reject Post'
                 )}
               </button>
             </div>
