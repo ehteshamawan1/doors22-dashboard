@@ -9,11 +9,15 @@ import { useState } from 'react';
 import { usePosts } from '@/hooks/usePosts';
 import { postsApi } from '@/lib/api';
 import PostCard from '@/components/PostCard';
+import PostViewModal from '@/components/PostViewModal';
 
 export default function ContentPage() {
   const [filter, setFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [, setActionLoading] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [editingPost, setEditingPost] = useState<any>(null);
+  const [editCaption, setEditCaption] = useState('');
+  const [previewingPost, setPreviewingPost] = useState<any>(null);
 
   const { posts, isLoading, mutate } = usePosts({
     limit: 100,
@@ -66,6 +70,46 @@ The post will be retried automatically.`);
     } catch (error) {
       console.error('Error approving post:', error);
       alert('Failed to approve post');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleEdit = (id: string) => {
+    const post = posts.find((p: any) => p.id === id);
+    if (post) {
+      setEditingPost(post);
+      setEditCaption(post.caption || '');
+    }
+  };
+
+  const handleView = (id: string) => {
+    const post = posts.find((p: any) => p.id === id);
+    if (post) {
+      setPreviewingPost(post);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingPost) return;
+
+    setActionLoading(editingPost.id);
+    try {
+      const result = await postsApi.edit(editingPost.id, { caption: editCaption }, 'leobel8@yahoo.com');
+      await mutate();
+      setEditingPost(null);
+
+      // Check if immediate posting was attempted and failed
+      if (result.immediatePost === false && result.postingError) {
+        alert(`Post updated but publishing failed: ${JSON.stringify(result.postingError)}\n\nThe post will be retried automatically.`);
+      } else if (result.immediatePost === true) {
+        alert('Post updated and published successfully!');
+      } else {
+        alert('Post updated and approved! It will be published at the scheduled time.');
+      }
+    } catch (error) {
+      console.error('Error editing post:', error);
+      alert('Failed to update post');
     } finally {
       setActionLoading(null);
     }
@@ -153,7 +197,10 @@ The post will be retried automatically.`);
               post={post}
               showActions={false}
               allowRejectedApprove
+              allowRejectedEdit
               onApprove={handleApprove}
+              onEdit={handleEdit}
+              onView={handleView}
             />
           ))}
         </div>
@@ -176,6 +223,92 @@ The post will be retried automatically.`);
           <p className="text-gray-600">No posts match your filters</p>
         </div>
       )}
+
+      {/* Edit Modal */}
+      {editingPost && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Edit Post</h2>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Media Preview */}
+              <div>
+                <label className="label">Media Preview</label>
+                <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-gray-100">
+                  <img
+                    src={editingPost.type === 'video' ? editingPost.thumbnailUrl : editingPost.mediaUrl}
+                    alt="Post media"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Edit Caption */}
+              <div>
+                <label htmlFor="caption" className="label">
+                  Caption
+                </label>
+                <textarea
+                  id="caption"
+                  value={editCaption}
+                  onChange={(e) => setEditCaption(e.target.value)}
+                  className="input min-h-[150px] resize-y"
+                  placeholder="Enter caption..."
+                />
+                <p className="text-xs text-gray-500 mt-1">{editCaption.length} characters</p>
+              </div>
+
+              {/* Hashtags */}
+              <div>
+                <label className="label">Hashtags</label>
+                <div className="flex flex-wrap gap-2">
+                  {editingPost.hashtags?.map((tag: string, i: number) => (
+                    <span key={i} className="badge bg-primary-50 text-primary-700">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="p-6 border-t border-gray-200 flex gap-3">
+              <button
+                onClick={() => setEditingPost(null)}
+                className="btn-secondary flex-1"
+                disabled={actionLoading === editingPost.id}
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="btn-primary flex-1"
+                disabled={actionLoading === editingPost.id}
+                type="button"
+              >
+                {actionLoading === editingPost.id ? (
+                  <div className="flex items-center justify-center">
+                    <div className="spinner mr-2"></div>
+                    Saving...
+                  </div>
+                ) : (
+                  'Save & Approve'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      <PostViewModal
+        post={previewingPost}
+        isOpen={!!previewingPost}
+        onClose={() => setPreviewingPost(null)}
+      />
     </div>
   );
 }

@@ -16,6 +16,7 @@ interface PostCardProps {
   onView?: (id: string) => void;
   showActions?: boolean;
   allowRejectedApprove?: boolean;
+  allowRejectedEdit?: boolean;
 }
 
 export default function PostCard({
@@ -26,6 +27,7 @@ export default function PostCard({
   onView,
   showActions = true,
   allowRejectedApprove = false,
+  allowRejectedEdit = false,
 }: PostCardProps) {
   const isVideo = post.type === 'video';
   const mediaUrl = isVideo ? post.thumbnailUrl : post.mediaUrl;
@@ -35,6 +37,7 @@ export default function PostCard({
     .trim();
   const showPendingActions = showActions && post.status === 'pending';
   const showRejectedApprove = allowRejectedApprove && post.status === 'rejected';
+  const showRejectedEdit = allowRejectedEdit && post.status === 'rejected';
 
   return (
     <div className="card-hover group">
@@ -157,28 +160,47 @@ export default function PostCard({
             )}
 
             {showRejectedApprove && (
-              <button
-                type="button"
-                onClick={() => onApprove?.(post.id)}
-                className="btn-success flex-1 btn-sm"
-              >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Approve
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => onApprove?.(post.id)}
+                  className="btn-success flex-1 btn-sm"
+                >
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Approve
+                </button>
+
+                {showRejectedEdit && (
+                  <button
+                    type="button"
+                    onClick={() => onEdit?.(post.id)}
+                    className="btn-secondary btn-sm"
+                  >
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                  </button>
+                )}
+              </>
             )}
           </div>
         )}
 
-        {/* View Details */}
+        {/* Preview Button */}
         {onView && (
           <button
             type="button"
             onClick={() => onView(post.id)}
             className="btn-secondary w-full btn-sm mt-2"
           >
-            View Details
+            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Preview
           </button>
         )}
       </div>

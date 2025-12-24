@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { usePendingPosts } from '@/hooks/usePosts';
 import { postsApi } from '@/lib/api';
 import PostCard from '@/components/PostCard';
+import PostViewModal from '@/components/PostViewModal';
 
 export default function ApprovalPage() {
   const { posts, mutate, isLoading } = usePendingPosts(50);
@@ -17,6 +18,7 @@ export default function ApprovalPage() {
   const [editCaption, setEditCaption] = useState('');
   const [rejectingPost, setRejectingPost] = useState<any>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [previewingPost, setPreviewingPost] = useState<any>(null);
 
   const handleApprove = async (id: string) => {
     setActionLoading(id);
@@ -53,6 +55,13 @@ export default function ApprovalPage() {
     if (post) {
       setEditingPost(post);
       setEditCaption(post.caption || '');
+    }
+  };
+
+  const handleView = (id: string) => {
+    const post = posts.find((p: any) => p.id === id);
+    if (post) {
+      setPreviewingPost(post);
     }
   };
 
@@ -128,6 +137,7 @@ export default function ApprovalPage() {
               onApprove={handleApprove}
               onReject={handleReject}
               onEdit={handleEdit}
+              onView={handleView}
             />
           ))}
         </div>
@@ -230,6 +240,13 @@ export default function ApprovalPage() {
           </div>
         </div>
       )}
+
+      {/* Preview Modal */}
+      <PostViewModal
+        post={previewingPost}
+        isOpen={!!previewingPost}
+        onClose={() => setPreviewingPost(null)}
+      />
 
       {/* Reject Modal */}
       {rejectingPost && (
