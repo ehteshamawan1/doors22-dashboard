@@ -18,7 +18,8 @@ import { useRouter } from 'next/navigation';
 const CATEGORIES = [
   { key: 'room_dividers', label: 'Room Dividers' },
   { key: 'closet_doors', label: 'Closet Doors' },
-  { key: 'home_offices', label: 'Home Offices' }
+  { key: 'home_offices', label: 'Home Offices' },
+  { key: 'office_partitions', label: 'Office Partitions' }
 ];
 
 const CONTENT_TYPES = [
